@@ -7,11 +7,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SubscriptionManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
 
 /**
  * PhoneInfoOpenerActivity
@@ -33,11 +42,36 @@ public class MainActivity extends AppCompatActivity {
 
     // SIM slot we want to open. Many devices label "Phone information 1" for slot index 0.
     private static final int SLOT_TO_OPEN = 0;
+    private static final String AD_UNIT_ID = "ca-app-pub-3940256099942544/9214589741";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new Thread(
+                () -> {
+                    // Initialize the Google Mobile Ads SDK on a background thread.
+                    MobileAds.initialize(this, initializationStatus -> {});
+                })
+                .start();
+
+// Create a new ad view.
+        ViewGroup adContainerView = findViewById(R.id.ad_view_container);
+        AdView adView = new AdView(this);
+        adView.setAdUnitId(AD_UNIT_ID);
+        // Replace ad container with new ad view.
+
+// Request an anchored adaptive banner with a width of 360.
+        adView.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, 360));
+
+// Replace ad container with new ad view.
+        adContainerView.removeAllViews();
+        adContainerView.addView(adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
+
+
 
         Button btnOpen5G = findViewById(R.id.btn_open_5g);
 
